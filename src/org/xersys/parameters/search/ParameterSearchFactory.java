@@ -85,7 +85,8 @@ public class ParameterSearchFactory{
                     ", sCntryNme" +
                     ", IFNULL(sNational, '') sNational" +
                     ", cRecdStat" +
-                " FROM Country";
+                " FROM Country" +
+                " WHERE cRecdStat = '1'";
     }
     
     private String getSQ_Province(){
@@ -97,7 +98,8 @@ public class ParameterSearchFactory{
                     ", b.sRegionNm" +
                     ", b.sRegionID" +
                 " FROM Province a" +
-                    ", Region b";
+                    ", Region b" +
+                " WHERE a.cRecdStat = '1'";
     }
     
     private String getSQ_Region(){
@@ -105,7 +107,8 @@ public class ParameterSearchFactory{
                     "  sRegionID" +
                     ", sRegionNm" +
                     ", cRecdStat" +
-                " FROM Region";
+                " FROM Region" +
+                " WHERE cRecdStat = '1'";
     }
     
     private String getSQ_TownCity(){
@@ -127,6 +130,7 @@ public class ParameterSearchFactory{
                     ", Province b" +
                     ", Region c" +
                 " WHERE a.sProvIDxx = b.sProvIDxx" +
-                    " AND b.sRegionID = c.sRegionID";
+                    " AND b.sRegionID = c.sRegionID" +
+                    " AND a.cRecdStat = '1'";
     }
 }
