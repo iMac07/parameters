@@ -5,10 +5,8 @@ import org.json.simple.JSONObject;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
-import org.xersys.parameters.search.ParameterSearchEngine.Type;
 
-
-public class ParameterSearchFactory{
+public class ParamSearchFactory {
     private XNautilus _nautilus;
     
     private String _key;
@@ -16,7 +14,15 @@ public class ParameterSearchFactory{
     private int _max;
     private boolean _exact;
     
-    public ParameterSearchFactory(XNautilus foNautilus, String fsKey, String fsFilter, int fnMax, boolean fbExact){
+    public enum Type{
+        searchCountry,
+        searchRegion,
+        searchProvince,
+        searchTownCity,
+        searchBanks
+    }
+    
+    public ParamSearchFactory(XNautilus foNautilus, String fsKey, String fsFilter, int fnMax, boolean fbExact){
         _nautilus = foNautilus;
         _key = fsKey;
         _filter = fsFilter;
@@ -43,6 +49,8 @@ public class ParameterSearchFactory{
             lsSQL = getSQ_Province();
         } else if (foType == Type.searchTownCity){
             lsSQL = getSQ_TownCity();
+        } else if (foType == Type.searchBanks){
+            lsSQL = getSQ_Banks();
         }
         
         if (lsSQL.isEmpty()){
@@ -132,5 +140,12 @@ public class ParameterSearchFactory{
                 " WHERE a.sProvIDxx = b.sProvIDxx" +
                     " AND b.sRegionID = c.sRegionID" +
                     " AND a.cRecdStat = '1'";
+    }
+    
+    private String getSQ_Banks(){
+        return "SELECT" +
+                    "  sBankCode" +
+                    ", sBankName" +
+                " FROM Banks";
     }
 }
