@@ -19,7 +19,11 @@ public class ParamSearchFactory {
         searchRegion,
         searchProvince,
         searchTownCity,
-        searchBanks
+        searchBanks,
+        searchBrand,
+        searchModel,
+        searchCatalogCategory,
+        searchModelSeries
     }
     
     public ParamSearchFactory(XNautilus foNautilus, String fsKey, String fsFilter, int fnMax, boolean fbExact){
@@ -49,6 +53,14 @@ public class ParamSearchFactory {
             lsSQL = getSQ_Province();
         } else if (foType == Type.searchTownCity){
             lsSQL = getSQ_TownCity();
+        } else if (foType == Type.searchBrand){
+            lsSQL = getSQ_Brand();
+        } else if (foType == Type.searchModel){
+            lsSQL = getSQ_Model();
+        } else if (foType == Type.searchModelSeries){
+            lsSQL = getSQ_Model_Series();
+        } else if (foType == Type.searchCatalogCategory){
+            lsSQL = getSQ_Catalog_Category();
         } else if (foType == Type.searchBanks){
             lsSQL = getSQ_Banks();
         }
@@ -147,5 +159,41 @@ public class ParamSearchFactory {
                     "  sBankCode" +
                     ", sBankName" +
                 " FROM Banks";
+    }
+    
+    private String getSQ_Brand(){
+        return "SELECT" +
+                    "  sBrandCde" +
+                    ", sInvTypCd" +
+                    ", sDescript" +
+                " FROM Brand";
+    }
+    
+    private String getSQ_Model(){
+        return "SELECT" +
+                    "  sModelCde" +
+                    ", sInvTypCd" +
+                    ", sBriefDsc" +
+                    ", sModelNme" +
+                    ", sDescript" +
+                    ", sBrandCde" +
+                    ", sCategrCd" +
+                    ", cEndOfLfe" +
+                " FROM Model";
+    }
+    
+    private String getSQ_Catalog_Category(){
+        return "SELECT" +
+                    "  sCategrCd" +
+                    ", sDescript" +
+                " FROM Catalog_Category";
+    }
+    
+    private String getSQ_Model_Series(){
+        return "SELECT" +
+                    "  sSeriesID" +
+                    ", sDescript" +
+                    ", sModelCde" +
+                " FROM Catalog_Category";
     }
 }
