@@ -98,6 +98,34 @@ public class ParamSearchEngine implements XNeoSearch{
                     loJSON.put("headers", "Code»Name");
                     loJSON.put("colname", lsColName);
                 }   break;
+            case searchBrand:
+                lsColName = "sBrandCde»sDescript»sInvTypCd";
+                loJSON = _instance.searchParameter(loType, (String) foValue, lsColName);
+                if ("success".equals((String) loJSON.get("result"))) {
+                    loJSON.put("headers", "Code»Description»Inv. Type");
+                    loJSON.put("colname", lsColName);
+                }   break;
+            case searchModel:
+                lsColName = "sModelCde»sModelNme»sDescript»sBrandCde";
+                loJSON = _instance.searchParameter(loType, (String) foValue, lsColName);
+                if ("success".equals((String) loJSON.get("result"))) {
+                    loJSON.put("headers", "Code»Name»Description»Brand");
+                    loJSON.put("colname", lsColName);
+                }   break;
+            case searchCatalogCategory:
+                lsColName = "sCategrCd»sDescript";
+                loJSON = _instance.searchParameter(loType, (String) foValue, lsColName);
+                if ("success".equals((String) loJSON.get("result"))) {
+                    loJSON.put("headers", "Code»Description");
+                    loJSON.put("colname", lsColName);
+                }   break;
+            case searchModelSeries:
+                lsColName = "sSeriesID»sDescript»sModelCde";
+                loJSON = _instance.searchParameter(loType, (String) foValue, lsColName);
+                if ("success".equals((String) loJSON.get("result"))) {
+                    loJSON.put("headers", "ID»Description»Model Code");
+                    loJSON.put("colname", lsColName);
+                }   break;
             default:
                 break;
         }
