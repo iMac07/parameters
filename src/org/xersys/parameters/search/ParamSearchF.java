@@ -350,7 +350,12 @@ public class ParamSearchF implements iSearch{
                 lsSQL = getSQ_Inv_Type(); break;
             case searchTerm:
                 lsSQL = getSQ_Term(); break;
-            default:
+            case searchMCDealer:
+                lsSQL = getSQ_MC_Delears(); break;
+            case searchLabor:
+                lsSQL = getSQ_Labor(); break;
+            case searchBarangay:
+                lsSQL = getSQ_Barangay(); break;
         }
         
         if (lsSQL.isEmpty()){
@@ -489,6 +494,27 @@ public class ParamSearchF implements iSearch{
                 
                 _filter_list.add("sDescript"); _filter_description.add("Term Name");
                 break;
+            case searchMCDealer:
+                _fields.add("sDealerCd"); _fields_descript.add("Code");
+                _fields.add("sDescript"); _fields_descript.add("Dealer Name");
+                
+                _filter_list.add("sDescript"); _filter_description.add("Dealer Name");
+                break;
+            case searchLabor:
+                _fields.add("sLaborCde"); _fields_descript.add("Code");
+                _fields.add("sDescript"); _fields_descript.add("Description");
+                _fields.add("nPriceLv1"); _fields_descript.add("Price 1");
+                _fields.add("nPriceLv2"); _fields_descript.add("Price 2");
+                _fields.add("nPriceLv3"); _fields_descript.add("Price 3");
+                break;
+            case searchBarangay:
+                _fields.add("sBrgyIDxx"); _fields_descript.add("ID");
+                _fields.add("sBrgyName"); _fields_descript.add("Baranagay");
+                _fields.add("xTownName"); _fields_descript.add("Town");
+                _fields.add("xProvName"); _fields_descript.add("Province");
+                
+                _filter_list.add("b.sTownName"); _filter_description.add("Town");
+                _filter_list.add("c.sProvname"); _filter_description.add("Province");
             default:
                 break;
         }
@@ -630,18 +656,60 @@ public class ParamSearchF implements iSearch{
                 " FROM Term";
     }
     
+    private String getSQ_MC_Delears(){
+        return "SELECT" +
+                    "  sDealerCd" +
+                    ", sDescript" +
+                    ", cRecdStat" +
+                " FROM MC_Dealers";
+    }
+    
+    private String getSQ_Labor(){
+        return "SELECT" +
+                    "  sLaborCde" +
+                    ", sDescript" +
+                    ", sBriefDsc" +
+                    ", nPriceLv1" +
+                    ", nPriceLv2" +
+                    ", nPriceLv3" +
+                    ", cInHousex" +
+                    ", cLaborTyp" +
+                    ", cRecdStat" +
+                " FROM Labor";
+    }
+    
+    private String getSQ_Barangay(){
+        return "SELECT" +
+                    "  a.sBrgyIDxx" +
+                    ", a.sBrgyName" +
+                    ", a.sTownIDxx" +
+                    ", a.cHasRoute" +
+                    ", a.cBlackLst" +
+                    ", a.cRecdStat" +
+                    ", b.sTownName xTownName" +
+                    ", c.sProvName xProvName" +
+                " FROM Barangay a" +
+                    ", TownCity b" +
+                    ", Province c" +
+                " WHERE a.sTownIDxx = b.sTownIDxx" +
+                    " AND b.sProvIDxx = c.sProvIDxx";
+    }
+    
     //let outside objects can call this variable without initializing the class.
     public static enum SearchType{
         searchCountry,
         searchRegion,
         searchProvince,
         searchTownCity,
+        searchBarangay,
         searchBanks,
         searchBrand,
         searchModel,
         searchCatalogCategory,
         searchModelSeries,
         searchInvType,
-        searchTerm
+        searchTerm,
+        searchMCDealer,
+        searchLabor
     }
 }
