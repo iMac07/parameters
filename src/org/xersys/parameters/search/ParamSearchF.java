@@ -351,7 +351,7 @@ public class ParamSearchF implements iSearch{
             case searchTerm:
                 lsSQL = getSQ_Term(); break;
             case searchMCDealer:
-                lsSQL = getSQ_MC_Delears(); break;
+                lsSQL = getSQ_MC_Dealers(); break;
             case searchLabor:
                 lsSQL = getSQ_Labor(); break;
             case searchBarangay:
@@ -656,7 +656,7 @@ public class ParamSearchF implements iSearch{
                 " FROM Term";
     }
     
-    private String getSQ_MC_Delears(){
+    private String getSQ_MC_Dealers(){
         return "SELECT" +
                     "  sDealerCd" +
                     ", sDescript" +
