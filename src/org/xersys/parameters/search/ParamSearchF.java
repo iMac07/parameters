@@ -356,6 +356,8 @@ public class ParamSearchF implements iSearch{
                 lsSQL = getSQ_Labor(); break;
             case searchBarangay:
                 lsSQL = getSQ_Barangay(); break;
+            case searchBranch:
+                lsSQL = getSQ_Branch(); break;
         }
         
         if (lsSQL.isEmpty()){
@@ -515,6 +517,9 @@ public class ParamSearchF implements iSearch{
                 
                 _filter_list.add("b.sTownName"); _filter_description.add("Town");
                 _filter_list.add("c.sProvname"); _filter_description.add("Province");
+            case searchBranch:
+                _fields.add("sBranchCd"); _fields_descript.add("ID");
+                _fields.add("sCompnyNm"); _fields_descript.add("Branch Name");
             default:
                 break;
         }
@@ -695,6 +700,13 @@ public class ParamSearchF implements iSearch{
                     " AND b.sProvIDxx = c.sProvIDxx";
     }
     
+    private String getSQ_Branch(){
+        return "SELECT" +
+                    "  sBranchCd" +
+                    ", sCompnyNm" +
+                " FROM xxxSysClient"; 
+    }
+    
     //let outside objects can call this variable without initializing the class.
     public static enum SearchType{
         searchCountry,
@@ -710,6 +722,7 @@ public class ParamSearchF implements iSearch{
         searchInvType,
         searchTerm,
         searchMCDealer,
-        searchLabor
+        searchLabor,
+        searchBranch
     }
 }
