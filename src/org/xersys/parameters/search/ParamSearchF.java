@@ -9,7 +9,7 @@ import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 
 public class ParamSearchF implements iSearch{
-    private final int DEFAULT_MAX_RESULT = 25;
+    private final int DEFAULT_MAX_RESULT = 1000;
     
     private XNautilus _app = null;  
     private String _message = "";
@@ -358,6 +358,8 @@ public class ParamSearchF implements iSearch{
                 lsSQL = getSQ_Barangay(); break;
             case searchBranch:
                 lsSQL = getSQ_Branch(); break;
+            case searchSerial:
+                lsSQL = getSQ_MC_Serial();
         }
         
         if (lsSQL.isEmpty()){
@@ -370,7 +372,9 @@ public class ParamSearchF implements iSearch{
         if (_search_exact)
             lsSQL = MiscUtil.addCondition(lsSQL, _search_key + " = " + SQLUtil.toSQL(_search_value));
         else
-            lsSQL = MiscUtil.addCondition(lsSQL, _search_key + " LIKE " + SQLUtil.toSQL("%" + _search_value + "%"));
+            lsSQL = MiscUtil.addCondition(lsSQL, _search_key + " LIKE " + SQLUtil.toSQL(_search_value + "%"));
+        
+        //lsSQL = MiscUtil.addCondition(lsSQL, _search_key + " LIKE " + SQLUtil.toSQL("%" + _search_value + "%"));
         
         //add filter on query
         if (!_filter.isEmpty()){
@@ -520,6 +524,11 @@ public class ParamSearchF implements iSearch{
             case searchBranch:
                 _fields.add("sBranchCd"); _fields_descript.add("ID");
                 _fields.add("sCompnyNm"); _fields_descript.add("Branch Name");
+                break;
+            case searchSerial:
+                _fields.add("sSerialID"); _fields_descript.add("ID");
+                _fields.add("sSerial01"); _fields_descript.add("Engine No.");
+                _fields.add("sSerial02"); _fields_descript.add("Frame No.");
             default:
                 break;
         }
@@ -707,6 +716,14 @@ public class ParamSearchF implements iSearch{
                 " FROM xxxSysClient"; 
     }
     
+    private String getSQ_MC_Serial(){
+        return "SELECT" +
+                    "  a.sSerialID" +
+                    ", a.sSerial01" +
+                    ", a.sSerial02" +
+                " FROM Inv_Serial a";
+    }
+    
     //let outside objects can call this variable without initializing the class.
     public static enum SearchType{
         searchCountry,
@@ -723,6 +740,7 @@ public class ParamSearchF implements iSearch{
         searchTerm,
         searchMCDealer,
         searchLabor,
-        searchBranch
+        searchBranch,
+        searchSerial
     }
 }
