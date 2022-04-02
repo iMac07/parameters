@@ -359,7 +359,9 @@ public class ParamSearchF implements iSearch{
             case searchBranch:
                 lsSQL = getSQ_Branch(); break;
             case searchSerial:
-                lsSQL = getSQ_MC_Serial();
+                lsSQL = getSQ_MC_Serial(); break;
+            case searchUser:
+                lsSQL = getSQ_User(); break;    
         }
         
         if (lsSQL.isEmpty()){
@@ -481,12 +483,13 @@ public class ParamSearchF implements iSearch{
                 _filter_list.add("sDescript"); _filter_description.add("Category");
                 break;
             case searchModelSeries:
-                _fields.add("sSeriesID"); _fields_descript.add("ID");
-                _fields.add("sDescript"); _fields_descript.add("Decription");
-                _fields.add("xModelNme"); _fields_descript.add("Model Name");
+                _fields.add("sBrandCde"); _fields_descript.add("Brand");
+                _fields.add("sModelNme"); _fields_descript.add("Model");
+                _fields.add("sBriefDsc"); _fields_descript.add("Brief Dsc.");
+                _fields.add("sModelCde"); _fields_descript.add("Code");
+                _fields.add("xSeriesNm"); _fields_descript.add("Series");
                 
-                _filter_list.add("a.sDescript"); _filter_description.add("Decription");
-                _filter_list.add("a.sModelCde"); _filter_description.add("Model Code");
+                _filter_list.add("a.sDescript"); _filter_description.add("Series");
                 break;
             case searchInvType:
                 _fields.add("sInvTypCd"); _fields_descript.add("Code");
@@ -510,8 +513,8 @@ public class ParamSearchF implements iSearch{
                 _fields.add("sLaborCde"); _fields_descript.add("Code");
                 _fields.add("sDescript"); _fields_descript.add("Description");
                 _fields.add("nPriceLv1"); _fields_descript.add("Price 1");
-                _fields.add("nPriceLv2"); _fields_descript.add("Price 2");
-                _fields.add("nPriceLv3"); _fields_descript.add("Price 3");
+//                _fields.add("nPriceLv2"); _fields_descript.add("Price 2");
+//                _fields.add("nPriceLv3"); _fields_descript.add("Price 3");
                 break;
             case searchBarangay:
                 _fields.add("sBrgyIDxx"); _fields_descript.add("ID");
@@ -529,6 +532,11 @@ public class ParamSearchF implements iSearch{
                 _fields.add("sSerialID"); _fields_descript.add("ID");
                 _fields.add("sSerial01"); _fields_descript.add("Engine No.");
                 _fields.add("sSerial02"); _fields_descript.add("Frame No.");
+                break;
+            case searchUser:
+                _fields.add("sUserIDxx"); _fields_descript.add("ID");
+                _fields.add("sClientNm"); _fields_descript.add("Name");
+                _fields.add("sProdctID"); _fields_descript.add("Product");
             default:
                 break;
         }
@@ -644,13 +652,16 @@ public class ParamSearchF implements iSearch{
     
     private String getSQ_Model_Series(){
         return "SELECT" +
-                    "  a.sSeriesID" +
-                    ", a.sDescript" +
-                    ", a.sModelCde" +
-                    ", b.sDescript xModelNme" +
+                    "  b.sBrandCde" +
+                    ", b.sModelCde" +
+                    ", b.sModelNme" +
+                    ", b.sBriefDsc" +
+                    ", a.sDescript xSeriesNm" +
+                    ", a.sSeriesID" +
                 " FROM Model_Series a" +
-                    ", Model b" +
-                " WHERE a.sModelCde = b.sModelCde";
+                    ", Model b" + 
+                " WHERE a.sModelCde = b.sModelCde" +
+                        " AND b.sInvTypCd = 'MC'";
     }
     
     private String getSQ_Inv_Type(){
@@ -724,6 +735,16 @@ public class ParamSearchF implements iSearch{
                 " FROM Inv_Serial a";
     }
     
+    private String getSQ_User(){
+        return "SELECT" +
+                    "  a.sUserIDxx" +
+                    ", b.sClientNm" +
+                    ", a.sProdctID" +
+                " FROM xxxSysUser a" +
+                    ", Client_Master b" +
+                " WHERE a.sClientID = b.sClientID";
+    }
+    
     //let outside objects can call this variable without initializing the class.
     public static enum SearchType{
         searchCountry,
@@ -741,6 +762,7 @@ public class ParamSearchF implements iSearch{
         searchMCDealer,
         searchLabor,
         searchBranch,
-        searchSerial
+        searchSerial,
+        searchUser
     }
 }
