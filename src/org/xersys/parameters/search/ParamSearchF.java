@@ -362,6 +362,8 @@ public class ParamSearchF implements iSearch{
                 lsSQL = getSQ_MC_Serial(); break;
             case searchUser:
                 lsSQL = getSQ_User(); break;    
+            case searchInvLocation:
+                lsSQL = getSQ_InvLocation(); break;    
         }
         
         if (lsSQL.isEmpty()){
@@ -513,8 +515,6 @@ public class ParamSearchF implements iSearch{
                 _fields.add("sLaborCde"); _fields_descript.add("Code");
                 _fields.add("sDescript"); _fields_descript.add("Description");
                 _fields.add("nPriceLv1"); _fields_descript.add("Price 1");
-//                _fields.add("nPriceLv2"); _fields_descript.add("Price 2");
-//                _fields.add("nPriceLv3"); _fields_descript.add("Price 3");
                 break;
             case searchBarangay:
                 _fields.add("sBrgyIDxx"); _fields_descript.add("ID");
@@ -537,6 +537,10 @@ public class ParamSearchF implements iSearch{
                 _fields.add("sUserIDxx"); _fields_descript.add("ID");
                 _fields.add("sClientNm"); _fields_descript.add("Name");
                 _fields.add("sProdctID"); _fields_descript.add("Product");
+            case searchInvLocation:
+                _fields.add("sLocatnCd"); _fields_descript.add("ID");
+                _fields.add("sDescript"); _fields_descript.add("Description");
+                _fields.add("sBriefDsc"); _fields_descript.add("Brief Dsc.");
             default:
                 break;
         }
@@ -745,6 +749,14 @@ public class ParamSearchF implements iSearch{
                 " WHERE a.sClientID = b.sClientID";
     }
     
+    private String getSQ_InvLocation(){
+        return "SELECT" +
+                    "  sLocatnCd" +
+                    ", sBriefDsc" +
+                    ", sDescript" +
+                " FROM Inv_Location";
+    }
+    
     //let outside objects can call this variable without initializing the class.
     public static enum SearchType{
         searchCountry,
@@ -763,6 +775,7 @@ public class ParamSearchF implements iSearch{
         searchLabor,
         searchBranch,
         searchSerial,
-        searchUser
+        searchUser,
+        searchInvLocation
     }
 }
