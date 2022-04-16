@@ -537,6 +537,7 @@ public class ParamSearchF implements iSearch{
                 _fields.add("sUserIDxx"); _fields_descript.add("ID");
                 _fields.add("sClientNm"); _fields_descript.add("Name");
                 _fields.add("sProdctID"); _fields_descript.add("Product");
+                break;
             case searchInvLocation:
                 _fields.add("sLocatnCd"); _fields_descript.add("ID");
                 _fields.add("sDescript"); _fields_descript.add("Description");
