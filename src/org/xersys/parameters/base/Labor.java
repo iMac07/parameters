@@ -244,6 +244,7 @@ public class Labor implements XRecord{
         
         try {
             p_oLabor.first();
+            p_oLabor.updateObject("sLaborCde", MiscUtil.getNextCode(MASTER_TABLE, "sLaborCde", false, p_oNautilus.getConnection().getConnection(), p_sBranchCd));
             p_oLabor.updateObject(fnIndex, foValue);
             p_oLabor.updateRow();
 

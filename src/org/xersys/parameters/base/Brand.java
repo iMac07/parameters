@@ -7,7 +7,10 @@ import java.sql.SQLException;
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.XRecord;
@@ -28,6 +31,7 @@ public class Brand implements XRecord{
     
     private CachedRowSet p_oBrand;
     
+    private ParamSearchF p_oInvType;
     private ParamSearchF p_oSearchBrand;
     
     public Brand(XNautilus foNautilus, String fsBranchCd, boolean fbWithParent){
@@ -35,6 +39,7 @@ public class Brand implements XRecord{
         p_sBranchCd = fsBranchCd;
         p_bWithParent = fbWithParent;
         
+        p_oInvType = new ParamSearchF(p_oNautilus, ParamSearchF.SearchType.searchInvType);
         p_oSearchBrand = new ParamSearchF(p_oNautilus, ParamSearchF.SearchType.searchBrand);
         
         p_nEditMode = EditMode.UNKNOWN;
@@ -97,16 +102,14 @@ public class Brand implements XRecord{
         
             if (p_nEditMode == EditMode.ADDNEW){
                 Connection loConn = getConnection();
-                                
-                p_oBrand.first();
-                p_oBrand.updateObject("sBrandCde", MiscUtil.getNextCode(MASTER_TABLE, "sBrandCde", false, loConn, p_sBranchCd));
-                p_oBrand.updateRow();
                 
                 if (!p_bWithParent) MiscUtil.close(loConn);
                 
-                lsSQL = MiscUtil.rowset2SQL(p_oBrand, MASTER_TABLE, "");
+                lsSQL = MiscUtil.rowset2SQL(p_oBrand, MASTER_TABLE, "xInvTypNm");
             } else { //old record
-                lsSQL = MiscUtil.rowset2SQL(p_oBrand, MASTER_TABLE, "", "sBrandCde = " + SQLUtil.toSQL((String) getMaster("sBrandCde")));
+                lsSQL = MiscUtil.rowset2SQL(p_oBrand, MASTER_TABLE, "xInvTypNm", 
+                        "sBrandCde = " + SQLUtil.toSQL((String) getMaster("sBrandCde")) +
+                        " AND sInvTypCd = " + SQLUtil.toSQL((String) getMaster("sInvTypCd")));
             }
             
             if (lsSQL.equals("")){
@@ -243,11 +246,17 @@ public class Brand implements XRecord{
         }
         
         try {
-            p_oBrand.first();
-            p_oBrand.updateObject(fnIndex, foValue);
-            p_oBrand.updateRow();
-
-            if (p_oListener != null) p_oListener.MasterRetreive(fnIndex, p_oBrand.getObject(fnIndex));
+            switch (fnIndex){
+                case 2:
+                    getInvType((String) foValue);
+                    break;
+                default:
+                    p_oBrand.first();
+                    p_oBrand.updateObject(fnIndex, foValue);
+                    p_oBrand.updateRow();
+                    
+                    if (p_oListener != null) p_oListener.MasterRetreive(fnIndex, p_oBrand.getObject(fnIndex));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             setMessage("SQLException on " + lsProcName + ". Please inform your System Admin.");
@@ -294,12 +303,14 @@ public class Brand implements XRecord{
     
     private String getSQ_Master(){
         return "SELECT" +
-                    "  sBrandCde" +
-                    ", sInvTypCd" +
-                    ", sDescript" +
-                    ", cRecdStat" +
-                    ", dModified" +
-                " FROM " + MASTER_TABLE;
+                    "  a.sBrandCde" +
+                    ", a.sInvTypCd" +
+                    ", a.sDescript" +
+                    ", a.cRecdStat" +
+                    ", a.dModified" +
+                    ", IFNULL(b.sDescript, '') xInvTypNm" +
+                " FROM " + MASTER_TABLE + " a" +
+                    " LEFT JOIN Inv_Type b ON a.sInvTypCd = b.sInvTypCd";
     }
     
     private void initMaster() throws SQLException{
@@ -308,8 +319,6 @@ public class Brand implements XRecord{
         
         MiscUtil.initRowSet(p_oBrand);
         
-        p_oBrand.updateObject("sBrandCde", MiscUtil.getNextCode(MASTER_TABLE, "sBrandCde", false, p_oNautilus.getConnection().getConnection(), p_sBranchCd));
-        p_oBrand.updateObject("sInvTypCd", "MC");
         p_oBrand.updateObject("cRecdStat", "1");
         
         p_oBrand.insertRow();
@@ -352,5 +361,56 @@ public class Brand implements XRecord{
     
     public ParamSearchF getSearchBrand(){
         return p_oSearchBrand;
+    }
+    
+    public JSONObject searchInvType(String fsKey, Object foValue, boolean fbExact){
+        p_oInvType.setKey(fsKey);
+        p_oInvType.setValue(foValue);
+        p_oInvType.setExact(fbExact);
+        
+        return p_oInvType.Search();
+    }
+    
+    public ParamSearchF getSearchInvType(){
+        return p_oInvType;
+    }
+    
+    private void getInvType(String foValue){
+        String lsProcName = this.getClass().getSimpleName() + ".getInvType()";
+        
+        JSONObject loJSON = searchInvType("sInvTypCd", foValue, true);
+        if ("success".equals((String) loJSON.get("result"))){
+            try {
+                JSONParser loParser = new JSONParser();
+
+                p_oBrand.first();
+                try {
+                    JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+
+                    switch (loArray.size()){
+                        case 0:
+                            p_oBrand.updateObject("sInvTypCd", "");
+                            p_oBrand.updateObject("xInvTypNm", "");
+                            p_oBrand.updateRow();
+                            break;
+                        default:
+                            loJSON = (JSONObject) loArray.get(0);
+                            p_oBrand.updateObject("sInvTypCd", (String) loJSON.get("sInvTypCd"));
+                            p_oBrand.updateObject("xInvTypNm", (String) loJSON.get("sDescript"));
+                            p_oBrand.updateRow();
+                    }
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                    p_oListener.MasterRetreive("sInvTypCd", "");
+                    p_oListener.MasterRetreive("xInvTypNm", "");
+                    p_oBrand.updateRow();
+                }
+
+                p_oListener.MasterRetreive("sInvTypCd", (String) getMaster("xInvTypNm"));
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                setMessage("SQLException on " + lsProcName + ". Please inform your System Admin.");
+            }
+        }
     }
 }
