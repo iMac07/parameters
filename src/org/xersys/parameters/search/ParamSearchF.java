@@ -216,7 +216,7 @@ public class ParamSearchF implements iSearch{
             return _filter.size()-1;
         }
         
-        for (int lnCtr = 0; lnCtr <= _filter.size()-1; lnCtr++){
+        for (int lnCtr = 0; lnCtr <= _filter.size() - 1; lnCtr++){
             if (_filter.get(lnCtr).toLowerCase().equals(fsField.toLowerCase())){
                 _filter_value.set(lnCtr, foValue);
                 return lnCtr;
@@ -575,9 +575,9 @@ public class ParamSearchF implements iSearch{
                     ", a.sRegionID" +
                     ", a.cRecdStat" +
                     ", b.sRegionNm" +
-                    ", b.sRegionID" +
                 " FROM Province a" +
-                    ", Region b";
+                    ", Region b" +
+                " WHERE a.sRegionID = b.sRegionID";
     }
     
     private String getSQ_Region(){
@@ -645,6 +645,7 @@ public class ParamSearchF implements iSearch{
                     ", Brand b" +
                     ", Inv_Type c" +
                 " WHERE a.sBrandCde = b.sBrandCde" +
+                    " AND a.sInvTypCd = b.sInvTypCd" +
                     " AND a.sInvTypCd = c.sInvTypCd";
     }
     
@@ -777,6 +778,7 @@ public class ParamSearchF implements iSearch{
         searchBranch,
         searchSerial,
         searchUser,
-        searchInvLocation
+        searchInvLocation,
+        searchColor
     }
 }

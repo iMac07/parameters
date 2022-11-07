@@ -15,8 +15,8 @@ import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.parameters.search.ParamSearchF;
 
-public class Labor implements XRecord{    
-    private final String MASTER_TABLE = "Labor";
+public class Color implements XRecord{    
+    private final String MASTER_TABLE = "Color";
     
     private final XNautilus p_oNautilus;
     private final boolean p_bWithParent;
@@ -26,16 +26,16 @@ public class Labor implements XRecord{
     private String p_sMessagex;
     private int p_nEditMode;
     
-    private CachedRowSet p_oLabor;
+    private CachedRowSet p_oColor;
     
-    private ParamSearchF p_oSearchLabor;
+    private ParamSearchF p_oSearchColor;
     
-    public Labor(XNautilus foNautilus, String fsBranchCd, boolean fbWithParent){
+    public Color(XNautilus foNautilus, String fsBranchCd, boolean fbWithParent){
         p_oNautilus = foNautilus;
         p_sBranchCd = fsBranchCd;
         p_bWithParent = fbWithParent;
         
-        p_oSearchLabor = new ParamSearchF(p_oNautilus, ParamSearchF.SearchType.searchLabor);
+        p_oSearchColor = new ParamSearchF(p_oNautilus, ParamSearchF.SearchType.searchColor);
         
         p_nEditMode = EditMode.UNKNOWN;
     }
@@ -63,8 +63,8 @@ public class Labor implements XRecord{
             //create empty master record
             lsSQL = MiscUtil.addCondition(getSQ_Master(), "0=1");
             loRS = p_oNautilus.executeQuery(lsSQL);
-            p_oLabor = factory.createCachedRowSet();
-            p_oLabor.populate(loRS);
+            p_oColor = factory.createCachedRowSet();
+            p_oColor.populate(loRS);
             MiscUtil.close(loRS);
             initMaster();           
         } catch (SQLException ex) {
@@ -98,15 +98,15 @@ public class Labor implements XRecord{
             if (p_nEditMode == EditMode.ADDNEW){
                 Connection loConn = getConnection();
                                 
-                p_oLabor.first();
-                p_oLabor.updateObject("sLaborCde", MiscUtil.getNextCode(MASTER_TABLE, "sLaborCde", false, loConn, p_sBranchCd));
-                p_oLabor.updateRow();
+                p_oColor.first();
+                p_oColor.updateObject("sColorIDx", MiscUtil.getNextCode(MASTER_TABLE, "sColorIDx", false, loConn, p_sBranchCd));
+                p_oColor.updateRow();
                 
                 if (!p_bWithParent) MiscUtil.close(loConn);
                 
-                lsSQL = MiscUtil.rowset2SQL(p_oLabor, MASTER_TABLE, "");
+                lsSQL = MiscUtil.rowset2SQL(p_oColor, MASTER_TABLE, "");
             } else { //old record
-                lsSQL = MiscUtil.rowset2SQL(p_oLabor, MASTER_TABLE, "", "sLaborCde = " + SQLUtil.toSQL((String) getMaster("sLaborCde")));
+                lsSQL = MiscUtil.rowset2SQL(p_oColor, MASTER_TABLE, "", "sColorIDx = " + SQLUtil.toSQL((String) getMaster("sColorIDx")));
             }
             
             if (lsSQL.equals("")){
@@ -153,7 +153,7 @@ public class Labor implements XRecord{
     }
 
     @Override
-    public boolean OpenRecord(String fsLaborCde) {
+    public boolean OpenRecord(String fsColorIDx) {
         System.out.println(this.getClass().getSimpleName() + ".OpenRecord()");
         setMessage("");   
         
@@ -164,10 +164,10 @@ public class Labor implements XRecord{
         
         try {
             if (p_nEditMode != EditMode.UNKNOWN){
-                if (p_oLabor != null){
-                    p_oLabor.first();
+                if (p_oColor != null){
+                    p_oColor.first();
 
-                    if (p_oLabor.getString("sLaborCde").equals(fsLaborCde)){
+                    if (p_oColor.getString("sColorIDx").equals(fsColorIDx)){
                         p_nEditMode  = EditMode.READY;
                         return true;
                     }
@@ -180,10 +180,10 @@ public class Labor implements XRecord{
             RowSetFactory factory = RowSetProvider.newFactory();
             
             //open master record
-            lsSQL = MiscUtil.addCondition(getSQ_Master(), "sLaborCde = " + SQLUtil.toSQL(fsLaborCde));
+            lsSQL = MiscUtil.addCondition(getSQ_Master(), "sColorIDx = " + SQLUtil.toSQL(fsColorIDx));
             loRS = p_oNautilus.executeQuery(lsSQL);
-            p_oLabor = factory.createCachedRowSet();
-            p_oLabor.populate(loRS);
+            p_oColor = factory.createCachedRowSet();
+            p_oColor.populate(loRS);
             MiscUtil.close(loRS);
             
             p_nEditMode = EditMode.READY;
@@ -225,8 +225,8 @@ public class Labor implements XRecord{
     @Override
     public Object getMaster(int fnIndex) {
         try {
-            p_oLabor.first();
-            return p_oLabor.getObject(fnIndex);
+            p_oColor.first();
+            return p_oColor.getObject(fnIndex);
         } catch (SQLException e) {
             return null;
         }
@@ -243,11 +243,11 @@ public class Labor implements XRecord{
         }
         
         try {
-            p_oLabor.first();
-            p_oLabor.updateObject(fnIndex, foValue);
-            p_oLabor.updateRow();
+            p_oColor.first();
+            p_oColor.updateObject(fnIndex, foValue);
+            p_oColor.updateRow();
 
-            if (p_oListener != null) p_oListener.MasterRetreive(fnIndex, p_oLabor.getObject(fnIndex));
+            if (p_oListener != null) p_oListener.MasterRetreive(fnIndex, p_oColor.getObject(fnIndex));
         } catch (SQLException e) {
             e.printStackTrace();
             setMessage("SQLException on " + lsProcName + ". Please inform your System Admin.");
@@ -259,7 +259,7 @@ public class Labor implements XRecord{
         String lsProcName = this.getClass().getSimpleName() + ".setMaster(String fsIndex, Object foValue)";
         
         try {
-            setMaster(MiscUtil.getColumnIndex(p_oLabor, fsIndex), foValue);
+            setMaster(MiscUtil.getColumnIndex(p_oColor, fsIndex), foValue);
         } catch (SQLException e) {
             e.printStackTrace();
             setMessage("SQLException on " + lsProcName + ". Please inform your System Admin.");
@@ -269,7 +269,7 @@ public class Labor implements XRecord{
     @Override
     public Object getMaster(String fsFieldNm){
         try {
-            return getMaster(MiscUtil.getColumnIndex(p_oLabor, fsFieldNm));
+            return getMaster(MiscUtil.getColumnIndex(p_oColor, fsFieldNm));
         } catch (SQLException e) {
             return null;
         }
@@ -294,51 +294,41 @@ public class Labor implements XRecord{
     
     private String getSQ_Master(){
         return "SELECT" +
-                    "  sLaborCde" +
-                    ", sDescript" +
-                    ", sBriefDsc" +
-                    ", nPriceLv1" +
-                    ", nPriceLv2" +
-                    ", nPriceLv3" +
-                    ", cInHousex" +
-                    ", cLaborTyp" +
+                    "  sColorIDx" +
+                    ", sColorNme" +
+                    ", sColorCde" +
                     ", cRecdStat" +
+                    ", sModified" +
                     ", dModified" +
                 " FROM " + MASTER_TABLE;
     }
     
     private void initMaster() throws SQLException{
-        p_oLabor.last();
-        p_oLabor.moveToInsertRow();
+        p_oColor.last();
+        p_oColor.moveToInsertRow();
         
-        MiscUtil.initRowSet(p_oLabor);
+        MiscUtil.initRowSet(p_oColor);
         
-        p_oLabor.updateObject("sLaborCde", MiscUtil.getNextCode(MASTER_TABLE, "sLaborCde", false, p_oNautilus.getConnection().getConnection(), p_sBranchCd));
-        p_oLabor.updateObject("cInHousex", "1");
-        p_oLabor.updateObject("cLaborTyp", "1");
-        p_oLabor.updateObject("cRecdStat", "1");
+        p_oColor.updateObject("sColorIDx", MiscUtil.getNextCode(MASTER_TABLE, "sColorIDx", false, p_oNautilus.getConnection().getConnection(), p_sBranchCd));
+        p_oColor.updateObject("cRecdStat", "1");
         
-        p_oLabor.insertRow();
-        p_oLabor.moveToCurrentRow();
+        p_oColor.insertRow();
+        p_oColor.moveToCurrentRow();
     }
     
     private boolean isEntryOK(){
         try {
             //assign values to master record
-            p_oLabor.first();
+            p_oColor.first();
             
-            if (String.valueOf(getMaster("sDescript")).isEmpty()){
+            if (String.valueOf(getMaster("sColorNme")).isEmpty()){
                 setMessage("Description must not be empty.");
                 return false;
             }
             
-            if (String.valueOf(getMaster("sBriefDsc")).isEmpty()){
-                setMessage("Brief bescription must not be empty.");
-                return false;
-            }
-            
-            p_oLabor.updateObject("dModified", p_oNautilus.getServerDate());
-            p_oLabor.updateRow();
+            p_oColor.updateObject("sModified", (String) p_oNautilus.getUserInfo("sUserIDxx"));
+            p_oColor.updateObject("dModified", p_oNautilus.getServerDate());
+            p_oColor.updateRow();
 
             return true;
         } catch (SQLException e) {
@@ -348,15 +338,15 @@ public class Labor implements XRecord{
         }
     }
     
-    public JSONObject searchLabor(String fsKey, Object foValue, boolean fbExact){
-        p_oSearchLabor.setKey(fsKey);
-        p_oSearchLabor.setValue(foValue);
-        p_oSearchLabor.setExact(fbExact);
+    public JSONObject searchColor(String fsKey, Object foValue, boolean fbExact){
+        p_oSearchColor.setKey(fsKey);
+        p_oSearchColor.setValue(foValue);
+        p_oSearchColor.setExact(fbExact);
         
-        return p_oSearchLabor.Search();
+        return p_oSearchColor.Search();
     }
     
-    public ParamSearchF getSearchLabor(){
-        return p_oSearchLabor;
+    public ParamSearchF getSearchColor(){
+        return p_oSearchColor;
     }
 }

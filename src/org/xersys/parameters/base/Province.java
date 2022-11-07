@@ -7,7 +7,10 @@ import java.sql.SQLException;
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.xersys.commander.contants.EditMode;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.iface.XRecord;
@@ -15,8 +18,8 @@ import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 import org.xersys.parameters.search.ParamSearchF;
 
-public class Labor implements XRecord{    
-    private final String MASTER_TABLE = "Labor";
+public class Province implements XRecord{    
+    private final String MASTER_TABLE = "Brand";
     
     private final XNautilus p_oNautilus;
     private final boolean p_bWithParent;
@@ -26,16 +29,18 @@ public class Labor implements XRecord{
     private String p_sMessagex;
     private int p_nEditMode;
     
-    private CachedRowSet p_oLabor;
+    private CachedRowSet p_oProvince;
     
-    private ParamSearchF p_oSearchLabor;
+    private ParamSearchF p_oRegion;
+    private ParamSearchF p_oSearchProvince;
     
-    public Labor(XNautilus foNautilus, String fsBranchCd, boolean fbWithParent){
+    public Province(XNautilus foNautilus, String fsBranchCd, boolean fbWithParent){
         p_oNautilus = foNautilus;
         p_sBranchCd = fsBranchCd;
         p_bWithParent = fbWithParent;
         
-        p_oSearchLabor = new ParamSearchF(p_oNautilus, ParamSearchF.SearchType.searchLabor);
+        p_oRegion = new ParamSearchF(p_oNautilus, ParamSearchF.SearchType.searchRegion);
+        p_oSearchProvince = new ParamSearchF(p_oNautilus, ParamSearchF.SearchType.searchProvince);
         
         p_nEditMode = EditMode.UNKNOWN;
     }
@@ -63,8 +68,8 @@ public class Labor implements XRecord{
             //create empty master record
             lsSQL = MiscUtil.addCondition(getSQ_Master(), "0=1");
             loRS = p_oNautilus.executeQuery(lsSQL);
-            p_oLabor = factory.createCachedRowSet();
-            p_oLabor.populate(loRS);
+            p_oProvince = factory.createCachedRowSet();
+            p_oProvince.populate(loRS);
             MiscUtil.close(loRS);
             initMaster();           
         } catch (SQLException ex) {
@@ -97,16 +102,13 @@ public class Labor implements XRecord{
         
             if (p_nEditMode == EditMode.ADDNEW){
                 Connection loConn = getConnection();
-                                
-                p_oLabor.first();
-                p_oLabor.updateObject("sLaborCde", MiscUtil.getNextCode(MASTER_TABLE, "sLaborCde", false, loConn, p_sBranchCd));
-                p_oLabor.updateRow();
                 
                 if (!p_bWithParent) MiscUtil.close(loConn);
                 
-                lsSQL = MiscUtil.rowset2SQL(p_oLabor, MASTER_TABLE, "");
+                lsSQL = MiscUtil.rowset2SQL(p_oProvince, MASTER_TABLE, "xRegionNm");
             } else { //old record
-                lsSQL = MiscUtil.rowset2SQL(p_oLabor, MASTER_TABLE, "", "sLaborCde = " + SQLUtil.toSQL((String) getMaster("sLaborCde")));
+                lsSQL = MiscUtil.rowset2SQL(p_oProvince, MASTER_TABLE, "xRegionNm", 
+                        "sProvIDxx = " + SQLUtil.toSQL((String) getMaster("sProvIDxx")));
             }
             
             if (lsSQL.equals("")){
@@ -153,7 +155,7 @@ public class Labor implements XRecord{
     }
 
     @Override
-    public boolean OpenRecord(String fsLaborCde) {
+    public boolean OpenRecord(String fsProvIDxx) {
         System.out.println(this.getClass().getSimpleName() + ".OpenRecord()");
         setMessage("");   
         
@@ -164,10 +166,10 @@ public class Labor implements XRecord{
         
         try {
             if (p_nEditMode != EditMode.UNKNOWN){
-                if (p_oLabor != null){
-                    p_oLabor.first();
+                if (p_oProvince != null){
+                    p_oProvince.first();
 
-                    if (p_oLabor.getString("sLaborCde").equals(fsLaborCde)){
+                    if (p_oProvince.getString("sProvIDxx").equals(fsProvIDxx)){
                         p_nEditMode  = EditMode.READY;
                         return true;
                     }
@@ -180,10 +182,10 @@ public class Labor implements XRecord{
             RowSetFactory factory = RowSetProvider.newFactory();
             
             //open master record
-            lsSQL = MiscUtil.addCondition(getSQ_Master(), "sLaborCde = " + SQLUtil.toSQL(fsLaborCde));
+            lsSQL = MiscUtil.addCondition(getSQ_Master(), "sProvIDxx = " + SQLUtil.toSQL(fsProvIDxx));
             loRS = p_oNautilus.executeQuery(lsSQL);
-            p_oLabor = factory.createCachedRowSet();
-            p_oLabor.populate(loRS);
+            p_oProvince = factory.createCachedRowSet();
+            p_oProvince.populate(loRS);
             MiscUtil.close(loRS);
             
             p_nEditMode = EditMode.READY;
@@ -225,8 +227,8 @@ public class Labor implements XRecord{
     @Override
     public Object getMaster(int fnIndex) {
         try {
-            p_oLabor.first();
-            return p_oLabor.getObject(fnIndex);
+            p_oProvince.first();
+            return p_oProvince.getObject(fnIndex);
         } catch (SQLException e) {
             return null;
         }
@@ -243,11 +245,17 @@ public class Labor implements XRecord{
         }
         
         try {
-            p_oLabor.first();
-            p_oLabor.updateObject(fnIndex, foValue);
-            p_oLabor.updateRow();
-
-            if (p_oListener != null) p_oListener.MasterRetreive(fnIndex, p_oLabor.getObject(fnIndex));
+            switch (fnIndex){
+                case 3:
+                    getRegion((String) foValue);
+                    break;
+                default:
+                    p_oProvince.first();
+                    p_oProvince.updateObject(fnIndex, foValue);
+                    p_oProvince.updateRow();
+                    
+                    if (p_oListener != null) p_oListener.MasterRetreive(fnIndex, p_oProvince.getObject(fnIndex));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             setMessage("SQLException on " + lsProcName + ". Please inform your System Admin.");
@@ -259,7 +267,7 @@ public class Labor implements XRecord{
         String lsProcName = this.getClass().getSimpleName() + ".setMaster(String fsIndex, Object foValue)";
         
         try {
-            setMaster(MiscUtil.getColumnIndex(p_oLabor, fsIndex), foValue);
+            setMaster(MiscUtil.getColumnIndex(p_oProvince, fsIndex), foValue);
         } catch (SQLException e) {
             e.printStackTrace();
             setMessage("SQLException on " + lsProcName + ". Please inform your System Admin.");
@@ -269,7 +277,7 @@ public class Labor implements XRecord{
     @Override
     public Object getMaster(String fsFieldNm){
         try {
-            return getMaster(MiscUtil.getColumnIndex(p_oLabor, fsFieldNm));
+            return getMaster(MiscUtil.getColumnIndex(p_oProvince, fsFieldNm));
         } catch (SQLException e) {
             return null;
         }
@@ -294,51 +302,45 @@ public class Labor implements XRecord{
     
     private String getSQ_Master(){
         return "SELECT" +
-                    "  sLaborCde" +
-                    ", sDescript" +
-                    ", sBriefDsc" +
-                    ", nPriceLv1" +
-                    ", nPriceLv2" +
-                    ", nPriceLv3" +
-                    ", cInHousex" +
-                    ", cLaborTyp" +
+                    "  sProvIDxx" +
+                    ", sProvName" +
+                    ", sRegionID" +
                     ", cRecdStat" +
                     ", dModified" +
-                " FROM " + MASTER_TABLE;
+                    ", IFNULL(b.sRegionNm, '') xRegionNm" +
+                " FROM " + MASTER_TABLE + " a" +
+                    " LEFT JOIN Region b ON a.sRegionID = b.sRegionID";
     }
     
     private void initMaster() throws SQLException{
-        p_oLabor.last();
-        p_oLabor.moveToInsertRow();
+        p_oProvince.last();
+        p_oProvince.moveToInsertRow();
         
-        MiscUtil.initRowSet(p_oLabor);
+        MiscUtil.initRowSet(p_oProvince);
         
-        p_oLabor.updateObject("sLaborCde", MiscUtil.getNextCode(MASTER_TABLE, "sLaborCde", false, p_oNautilus.getConnection().getConnection(), p_sBranchCd));
-        p_oLabor.updateObject("cInHousex", "1");
-        p_oLabor.updateObject("cLaborTyp", "1");
-        p_oLabor.updateObject("cRecdStat", "1");
+        p_oProvince.updateObject("cRecdStat", "1");
         
-        p_oLabor.insertRow();
-        p_oLabor.moveToCurrentRow();
+        p_oProvince.insertRow();
+        p_oProvince.moveToCurrentRow();
     }
     
     private boolean isEntryOK(){
         try {
             //assign values to master record
-            p_oLabor.first();
+            p_oProvince.first();
             
-            if (String.valueOf(getMaster("sDescript")).isEmpty()){
+            if (String.valueOf(getMaster("sRegionID")).isEmpty()){
+                setMessage("Region must not be empty.");
+                return false;
+            }
+            
+            if (String.valueOf(getMaster("sProvName")).isEmpty()){
                 setMessage("Description must not be empty.");
                 return false;
             }
             
-            if (String.valueOf(getMaster("sBriefDsc")).isEmpty()){
-                setMessage("Brief bescription must not be empty.");
-                return false;
-            }
-            
-            p_oLabor.updateObject("dModified", p_oNautilus.getServerDate());
-            p_oLabor.updateRow();
+            p_oProvince.updateObject("dModified", p_oNautilus.getServerDate());
+            p_oProvince.updateRow();
 
             return true;
         } catch (SQLException e) {
@@ -348,15 +350,66 @@ public class Labor implements XRecord{
         }
     }
     
-    public JSONObject searchLabor(String fsKey, Object foValue, boolean fbExact){
-        p_oSearchLabor.setKey(fsKey);
-        p_oSearchLabor.setValue(foValue);
-        p_oSearchLabor.setExact(fbExact);
+    public JSONObject searchProvince(String fsKey, Object foValue, boolean fbExact){
+        p_oSearchProvince.setKey(fsKey);
+        p_oSearchProvince.setValue(foValue);
+        p_oSearchProvince.setExact(fbExact);
         
-        return p_oSearchLabor.Search();
+        return p_oSearchProvince.Search();
     }
     
-    public ParamSearchF getSearchLabor(){
-        return p_oSearchLabor;
+    public ParamSearchF getSearchProvince(){
+        return p_oSearchProvince;
+    }
+    
+    public JSONObject searchRegion(String fsKey, Object foValue, boolean fbExact){
+        p_oRegion.setKey(fsKey);
+        p_oRegion.setValue(foValue);
+        p_oRegion.setExact(fbExact);
+        
+        return p_oRegion.Search();
+    }
+    
+    public ParamSearchF getSearchRegion(){
+        return p_oRegion;
+    }
+    
+    private void getRegion(String foValue){
+        String lsProcName = this.getClass().getSimpleName() + ".getInvType()";
+        
+        JSONObject loJSON = searchRegion("sRegionID", foValue, true);
+        if ("success".equals((String) loJSON.get("result"))){
+            try {
+                JSONParser loParser = new JSONParser();
+
+                p_oProvince.first();
+                try {
+                    JSONArray loArray = (JSONArray) loParser.parse((String) loJSON.get("payload"));
+
+                    switch (loArray.size()){
+                        case 0:
+                            p_oProvince.updateObject("sRegionID", "");
+                            p_oProvince.updateObject("xRegionNm", "");
+                            p_oProvince.updateRow();
+                            break;
+                        default:
+                            loJSON = (JSONObject) loArray.get(0);
+                            p_oProvince.updateObject("sRegionID", (String) loJSON.get("sRegionID"));
+                            p_oProvince.updateObject("xRegionNm", (String) loJSON.get("sRegionNm"));
+                            p_oProvince.updateRow();
+                    }
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                    p_oListener.MasterRetreive("sRegionID", "");
+                    p_oListener.MasterRetreive("xRegionNm", "");
+                    p_oProvince.updateRow();
+                }
+
+                p_oListener.MasterRetreive("sRegionID", (String) getMaster("xRegionNm"));
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                setMessage("SQLException on " + lsProcName + ". Please inform your System Admin.");
+            }
+        }
     }
 }
