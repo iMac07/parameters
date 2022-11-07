@@ -5,11 +5,6 @@
         <group name="kumander">
             <file>file:/F:/xurpas/parameters/src/org/xersys/parameters/search/ParameterSearchEngine.java</file>
         </group>
-        <group>
-            <file>file:/D:/MTC%20Files/Programs/Java/icarus/parameters/src/org/xersys/parameters/base/Labor.java</file>
-            <file>file:/D:/MTC%20Files/Programs/Java/icarus/parameters/src/org/xersys/parameters/search/ParamSearchF.java</file>
-            <file>file:/D:/MTC%20Files/Programs/Java/icarus/parameters/src/org/xersys/parameters/base/Brand.java</file>
-            <file>file:/D:/MTC%20Files/Programs/Java/icarus/parameters/src/org/xersys/parameters/base/Model.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>
