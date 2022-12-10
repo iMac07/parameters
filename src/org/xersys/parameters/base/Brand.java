@@ -335,10 +335,25 @@ public class Brand implements XRecord{
                 return false;
             }
             
+            if (String.valueOf(getMaster("sBrandCde")).isEmpty()){
+                setMessage("Brand code must not be empty.");
+                return false;
+            }
+            
+            if (String.valueOf(getMaster("sBrandCde")).length() > 8){
+                setMessage("Brand code must be more than 8 characters.");
+                return false;
+            }           
+            
             if (String.valueOf(getMaster("sDescript")).isEmpty()){
                 setMessage("Description must not be empty.");
                 return false;
             }
+            
+            if (String.valueOf(getMaster("sBrandCde")).length() > 64){
+                setMessage("Brand code must be more than 64 characters.");
+                return false;
+            }           
             
             p_oBrand.updateObject("dModified", p_oNautilus.getServerDate());
             p_oBrand.updateRow();

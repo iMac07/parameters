@@ -337,22 +337,42 @@ public class Model implements XRecord{
             if (String.valueOf(getMaster("sModelCde")).isEmpty()){
                 setMessage("Model code must not be empty.");
                 return false;
-            }        
+            }       
+            
+            if (String.valueOf(getMaster("sModelCde")).length() > 15){
+                setMessage("Model code must be more than 15 characters.");
+                return false;
+            }  
                     
             if (String.valueOf(getMaster("sBriefDsc")).isEmpty()){
                 setMessage("Brief description must not be empty.");
                 return false;
             }
             
+            if (String.valueOf(getMaster("sBriefDsc")).length() > 32){
+                setMessage("Brief desc. must be more than 32 characters.");
+                return false;
+            }  
+            
             if (String.valueOf(getMaster("sDescript")).isEmpty()){
                 setMessage("Description must not be empty.");
                 return false;
             }
             
+            if (String.valueOf(getMaster("sBriefDsc")).length() > 64){
+                setMessage("Description must be more than 64 characters.");
+                return false;
+            }  
+            
             if (String.valueOf(getMaster("sModelNme")).isEmpty()){
                 setMessage("Model name must not be empty.");
                 return false;
             }
+            
+            if (String.valueOf(getMaster("sModelNme")).length() > 64){
+                setMessage("Name must be more than 64 characters.");
+                return false;
+            } 
             
             if (String.valueOf(getMaster("sBrandCde")).isEmpty()){
                 setMessage("Brand must not be empty.");
