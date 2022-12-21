@@ -442,11 +442,11 @@ public class ParamSearchF implements iSearch{
                 _filter_list.add("a.sRegionID"); _filter_description.add("Region ID");
                 break;
             case searchTownCity:
-                _fields.add("sTownIDxx"); _fields_descript.add("ID");
-                _fields.add("sTownName"); _fields_descript.add("Town ");
                 _fields.add("sZippCode"); _fields_descript.add("Postal Code");
+                _fields.add("sTownName"); _fields_descript.add("Town ");
                 _fields.add("sProvName"); _fields_descript.add("Province");
                 _fields.add("sRegionNm"); _fields_descript.add("Region");
+                _fields.add("sTownIDxx"); _fields_descript.add("ID");
                 
                 _filter_list.add("a.sTownName"); _filter_description.add("Town");
                 _filter_list.add("a.sProvIDxx"); _filter_description.add("Province ID");
@@ -524,6 +524,7 @@ public class ParamSearchF implements iSearch{
                 
                 _filter_list.add("b.sTownName"); _filter_description.add("Town");
                 _filter_list.add("c.sProvname"); _filter_description.add("Province");
+                break;
             case searchBranch:
                 _fields.add("sBranchCd"); _fields_descript.add("ID");
                 _fields.add("sCompnyNm"); _fields_descript.add("Branch Name");
