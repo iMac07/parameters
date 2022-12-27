@@ -364,6 +364,10 @@ public class ParamSearchF implements iSearch{
                 lsSQL = getSQ_User(); break;    
             case searchInvLocation:
                 lsSQL = getSQ_InvLocation(); break;    
+            case searchSizes:
+                lsSQL = getSQ_Sizes(); break;
+            case searchMeasure:
+                lsSQL = getSQ_Measure(); break;
         }
         
         if (lsSQL.isEmpty()){
@@ -543,6 +547,13 @@ public class ParamSearchF implements iSearch{
                 _fields.add("sLocatnCd"); _fields_descript.add("ID");
                 _fields.add("sDescript"); _fields_descript.add("Description");
                 _fields.add("sBriefDsc"); _fields_descript.add("Brief Dsc.");
+                break;
+            case searchSizes:
+                _fields.add("sSizeIDxx"); _fields_descript.add("ID");
+                _fields.add("sSizeName"); _fields_descript.add("Description");
+            case searchMeasure:
+                _fields.add("sMeasurID"); _fields_descript.add("ID");
+                _fields.add("sMeasurNm"); _fields_descript.add("Description");
             default:
                 break;
         }
@@ -760,6 +771,20 @@ public class ParamSearchF implements iSearch{
                 " FROM Inv_Location";
     }
     
+    private String getSQ_Sizes(){
+        return "SELECT" +
+                    "  sSizeIDxx" +
+                    ", sSizeName" +
+                " FROM Size";
+    }
+    
+    private String getSQ_Measure(){
+        return "SELECT" +
+                    "  sMeasurID" +
+                    ", sMeasurNm" +
+                " FROM Measure";
+    }
+    
     //let outside objects can call this variable without initializing the class.
     public static enum SearchType{
         searchCountry,
@@ -780,6 +805,8 @@ public class ParamSearchF implements iSearch{
         searchSerial,
         searchUser,
         searchInvLocation,
-        searchColor
+        searchColor,
+        searchSizes,
+        searchMeasure
     }
 }
