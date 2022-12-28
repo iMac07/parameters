@@ -551,6 +551,7 @@ public class ParamSearchF implements iSearch{
             case searchSizes:
                 _fields.add("sSizeIDxx"); _fields_descript.add("ID");
                 _fields.add("sSizeName"); _fields_descript.add("Description");
+                break;
             case searchMeasure:
                 _fields.add("sMeasurID"); _fields_descript.add("ID");
                 _fields.add("sMeasurNm"); _fields_descript.add("Description");

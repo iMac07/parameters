@@ -26,7 +26,7 @@ public class Measure implements XRecord{
     private String p_sMessagex;
     private int p_nEditMode;
     
-    private CachedRowSet p_oColor;
+    private CachedRowSet p_oMeasure;
     
     private ParamSearchF p_oSearchMeasure;
     
@@ -63,8 +63,8 @@ public class Measure implements XRecord{
             //create empty master record
             lsSQL = MiscUtil.addCondition(getSQ_Master(), "0=1");
             loRS = p_oNautilus.executeQuery(lsSQL);
-            p_oColor = factory.createCachedRowSet();
-            p_oColor.populate(loRS);
+            p_oMeasure = factory.createCachedRowSet();
+            p_oMeasure.populate(loRS);
             MiscUtil.close(loRS);
             initMaster();           
         } catch (SQLException ex) {
@@ -98,15 +98,15 @@ public class Measure implements XRecord{
             if (p_nEditMode == EditMode.ADDNEW){
                 Connection loConn = getConnection();
                                 
-                p_oColor.first();
-                p_oColor.updateObject("sMeasurID", MiscUtil.getNextCode(MASTER_TABLE, "sMeasurID", false, loConn, p_sBranchCd));
-                p_oColor.updateRow();
+                p_oMeasure.first();
+                p_oMeasure.updateObject("sMeasurID", MiscUtil.getNextCode(MASTER_TABLE, "sMeasurID", false, loConn, p_sBranchCd));
+                p_oMeasure.updateRow();
                 
                 if (!p_bWithParent) MiscUtil.close(loConn);
                 
-                lsSQL = MiscUtil.rowset2SQL(p_oColor, MASTER_TABLE, "");
+                lsSQL = MiscUtil.rowset2SQL(p_oMeasure, MASTER_TABLE, "");
             } else { //old record
-                lsSQL = MiscUtil.rowset2SQL(p_oColor, MASTER_TABLE, "", "sMeasurID = " + SQLUtil.toSQL((String) getMaster("sMeasurID")));
+                lsSQL = MiscUtil.rowset2SQL(p_oMeasure, MASTER_TABLE, "", "sMeasurID = " + SQLUtil.toSQL((String) getMaster("sMeasurID")));
             }
             
             if (lsSQL.equals("")){
@@ -164,10 +164,10 @@ public class Measure implements XRecord{
         
         try {
             if (p_nEditMode != EditMode.UNKNOWN){
-                if (p_oColor != null){
-                    p_oColor.first();
+                if (p_oMeasure != null){
+                    p_oMeasure.first();
 
-                    if (p_oColor.getString("sMeasurID").equals(fsMeasurID)){
+                    if (p_oMeasure.getString("sMeasurID").equals(fsMeasurID)){
                         p_nEditMode  = EditMode.READY;
                         return true;
                     }
@@ -182,8 +182,8 @@ public class Measure implements XRecord{
             //open master record
             lsSQL = MiscUtil.addCondition(getSQ_Master(), "sMeasurID = " + SQLUtil.toSQL(fsMeasurID));
             loRS = p_oNautilus.executeQuery(lsSQL);
-            p_oColor = factory.createCachedRowSet();
-            p_oColor.populate(loRS);
+            p_oMeasure = factory.createCachedRowSet();
+            p_oMeasure.populate(loRS);
             MiscUtil.close(loRS);
             
             p_nEditMode = EditMode.READY;
@@ -225,8 +225,8 @@ public class Measure implements XRecord{
     @Override
     public Object getMaster(int fnIndex) {
         try {
-            p_oColor.first();
-            return p_oColor.getObject(fnIndex);
+            p_oMeasure.first();
+            return p_oMeasure.getObject(fnIndex);
         } catch (SQLException e) {
             return null;
         }
@@ -243,11 +243,11 @@ public class Measure implements XRecord{
         }
         
         try {
-            p_oColor.first();
-            p_oColor.updateObject(fnIndex, foValue);
-            p_oColor.updateRow();
+            p_oMeasure.first();
+            p_oMeasure.updateObject(fnIndex, foValue);
+            p_oMeasure.updateRow();
 
-            if (p_oListener != null) p_oListener.MasterRetreive(fnIndex, p_oColor.getObject(fnIndex));
+            if (p_oListener != null) p_oListener.MasterRetreive(fnIndex, p_oMeasure.getObject(fnIndex));
         } catch (SQLException e) {
             e.printStackTrace();
             setMessage("SQLException on " + lsProcName + ". Please inform your System Admin.");
@@ -259,7 +259,7 @@ public class Measure implements XRecord{
         String lsProcName = this.getClass().getSimpleName() + ".setMaster(String fsIndex, Object foValue)";
         
         try {
-            setMaster(MiscUtil.getColumnIndex(p_oColor, fsIndex), foValue);
+            setMaster(MiscUtil.getColumnIndex(p_oMeasure, fsIndex), foValue);
         } catch (SQLException e) {
             e.printStackTrace();
             setMessage("SQLException on " + lsProcName + ". Please inform your System Admin.");
@@ -269,7 +269,7 @@ public class Measure implements XRecord{
     @Override
     public Object getMaster(String fsFieldNm){
         try {
-            return getMaster(MiscUtil.getColumnIndex(p_oColor, fsFieldNm));
+            return getMaster(MiscUtil.getColumnIndex(p_oMeasure, fsFieldNm));
         } catch (SQLException e) {
             return null;
         }
@@ -303,31 +303,31 @@ public class Measure implements XRecord{
     }
     
     private void initMaster() throws SQLException{
-        p_oColor.last();
-        p_oColor.moveToInsertRow();
+        p_oMeasure.last();
+        p_oMeasure.moveToInsertRow();
         
-        MiscUtil.initRowSet(p_oColor);
+        MiscUtil.initRowSet(p_oMeasure);
         
-        p_oColor.updateObject("sMeasurID", MiscUtil.getNextCode(MASTER_TABLE, "sMeasurID", false, p_oNautilus.getConnection().getConnection(), p_sBranchCd));
-        p_oColor.updateObject("cRecdStat", "1");
+        p_oMeasure.updateObject("sMeasurID", MiscUtil.getNextCode(MASTER_TABLE, "sMeasurID", false, p_oNautilus.getConnection().getConnection(), p_sBranchCd));
+        p_oMeasure.updateObject("cRecdStat", "1");
         
-        p_oColor.insertRow();
-        p_oColor.moveToCurrentRow();
+        p_oMeasure.insertRow();
+        p_oMeasure.moveToCurrentRow();
     }
     
     private boolean isEntryOK(){
         try {
             //assign values to master record
-            p_oColor.first();
+            p_oMeasure.first();
             
             if (String.valueOf(getMaster("sMeasurNm")).isEmpty()){
                 setMessage("Description must not be empty.");
                 return false;
             }
             
-            p_oColor.updateObject("sModified", (String) p_oNautilus.getUserInfo("sUserIDxx"));
-            p_oColor.updateObject("dModified", p_oNautilus.getServerDate());
-            p_oColor.updateRow();
+            p_oMeasure.updateObject("sModified", (String) p_oNautilus.getUserInfo("sUserIDxx"));
+            p_oMeasure.updateObject("dModified", p_oNautilus.getServerDate());
+            p_oMeasure.updateRow();
 
             return true;
         } catch (SQLException e) {
